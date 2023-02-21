@@ -1,0 +1,53 @@
+---
+name: Build and Push Docker Image to AWS Elastic Container Registry
+on:
+  push:
+    branches:
+      - "master"
+jobs:
+  build-and-push-to-ecr:
+    name: "Build and Push to AWS ECR"
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-east-1
+      GITHUB_REPO: veronis-devops-candidate-test-web-app
+      GITHUB_USERNAME: NicholasYamamoto
+
+    steps:
+    - name: "Checking out the Master branch"
+      id: checkout-master
+      uses: actions/checkout@v3
+
+    - name: "Configuring AWS credentials"
+      id: configure-aws
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: "Logging in to AWS ECR"
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+
+    - name: "Creating the Git Tag"
+      id: create-git-tag
+      env:
+        GITHUB_REPO: ${{ env.GITHUB_REPO }}
+        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        GITHUB_USERNAME: ${{ env.GITHUB_USERNAME }}
+      run: |-
+        bash .github/scripts/create_git_tag.sh -v patch
+
+    - name: "Building, Tagging and Pushing the Docker Image to AWS ECR"
+      id: build-tag-and-push-image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+        GIT_TAG: ${{ steps.create-git-tag.outputs.git-tag }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$GIT_TAG .
+        echo "-----------------Pushing image to ECR-----------------"
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$GIT_TAG
+        echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$GIT_TAG"
