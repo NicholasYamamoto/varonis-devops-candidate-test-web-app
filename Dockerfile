@@ -4,6 +4,10 @@ WORKDIR /app
 
 COPY . .
 
+RUN useradd mario && groupadd bros
+
+USER mario:bros
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 CMD [ "gunicorn", "--bind", "0.0.0.0:5000", "app:app" ]

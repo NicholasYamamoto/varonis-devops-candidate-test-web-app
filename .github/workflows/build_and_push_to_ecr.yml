@@ -30,7 +30,6 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-
     - name: "Creating the Git Tag"
       id: create-git-tag
       env:
@@ -50,5 +49,5 @@ jobs:
       run: |
         docker build -t $IMAGE_NAME:$GIT_TAG .
         echo "-----------------Pushing image to ECR-----------------"
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$GIT_TAG
+        docker push 738013621832.dkr.ecr.us-east-1.amazonaws.com/nick-ecr:$GIT_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$GIT_TAG"
