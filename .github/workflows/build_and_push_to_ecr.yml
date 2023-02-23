@@ -47,7 +47,7 @@ jobs:
         GIT_TAG: ${{ steps.create-git-tag.outputs.git-tag }}
         IMAGE_NAME: nick-varonis-web-app
       run: |
-        docker build -t $IMAGE_NAME:$GIT_TAG .
+        docker build -t 738013621832.dkr.ecr.us-east-1.amazonaws.com/nick-ecr:$GIT_TAG .
         echo "-----------------Pushing image to ECR-----------------"
         docker push 738013621832.dkr.ecr.us-east-1.amazonaws.com/nick-ecr:$GIT_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$GIT_TAG"
