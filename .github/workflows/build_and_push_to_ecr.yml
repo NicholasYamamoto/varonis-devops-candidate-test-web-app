@@ -42,12 +42,13 @@ jobs:
     - name: "Building, Tagging and Pushing the Docker Image to AWS ECR"
       id: build-tag-and-push-image
       env:
+        AWS_IAM_USER: ${{ secrets.AWS_IAM_USER }}
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
         GIT_TAG: ${{ steps.create-git-tag.outputs.git-tag }}
         IMAGE_NAME: nick-varonis-web-app
       run: |
-        docker build -t 738013621832.dkr.ecr.us-east-1.amazonaws.com/nick-ecr:$GIT_TAG .
+        docker build -t $AWS_IAM_USER.dkr.ecr.us-east-1.amazonaws.com/$ECR_REPOSITORY:$GIT_TAG .
         echo "-----------------Pushing image to ECR-----------------"
-        docker push 738013621832.dkr.ecr.us-east-1.amazonaws.com/nick-ecr:$GIT_TAG
+        docker push $AWS_IAM_USER.dkr.ecr.us-east-1.amazonaws.com/$ECR_REPOSITORY:$GIT_TAG
         echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$GIT_TAG"
